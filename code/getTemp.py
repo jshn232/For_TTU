@@ -22,12 +22,12 @@ def _getTerTemp():
 	temp = float(s_Temp)
 	return temp
 
-#获取�?境温�?
+#获取环境温湿度
 def _getEnvTemp():
 	try:
 		address = ('127.0.0.1', 4001)
 		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		msg = "68FFFFFFFF0A0168010C00010000000000000025D528D5DC16"   #通过UDP 上�?�通�??获取�?境温湿度
+		msg = "68FFFFFFFF0A0168010C00010000000000000025D528D5DC16"   #通过UDP 上行通讯获取环境温湿度
 		msg = unhexlify(msg)
 		s.sendto(msg, address)
 		s.settimeout(5)
@@ -68,7 +68,7 @@ def _udpGetTemp():
 	try:
 		address = ('127.0.0.1', 4001)
 		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		msg = "68FFFFFFFF0A0168010C00010000000000000025D528D5DC16"   #通过UDP 上�?�通�??获取�?境温湿度
+		msg = "68FFFFFFFF0A0168010C00010000000000000025D528D5DC16"   #通过UDP 上行通讯获取环境温湿度
 		msg = unhexlify(msg)
 		s.sendto(msg, address)
 		s.settimeout(5)
@@ -100,7 +100,7 @@ def monitor():
 	day = 0
 	timelocal = time.localtime(time.time())
 	t_min = timelocal.tm_min
-	if (t_min % 5 == 0) and (t_min != t_old):   #5分钟一�?周期
+	if (t_min % 5 == 0) and (t_min != t_old):   #5分钟一个周期
 		if (day != timelocal.tm_yday):
 			day = timelocal.tm_yday
 			s_day = str(time.strftime("%Y%m%d"))
