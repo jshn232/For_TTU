@@ -1,6 +1,5 @@
 #! /usr/bin/python3
 #20180423
-#dyyyy
 import struct 
 import socket
 import time
