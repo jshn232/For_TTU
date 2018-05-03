@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+#根据同一目录下的record1文件，做温湿度&cpu温度的曲线绘制
+#20180503  by scy
 import numpy as np
 import pylab as pl
 from matplotlib.ticker import MultipleLocator
