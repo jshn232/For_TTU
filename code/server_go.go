@@ -13,7 +13,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	//	pb "google.golang.org/grpc/examples/helloworld/helloworld"
-	pb "jshn232/helloworld"
+	pb "jshn232/helloworld"  //folder in the $GOPATH/src/
 
 	"google.golang.org/grpc/reflection"
 )
