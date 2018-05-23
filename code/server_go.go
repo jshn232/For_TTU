@@ -4,12 +4,28 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"os"
+	"strings"
 	"time"
+
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	//	pb "google.golang.org/grpc/examples/helloworld/helloworld"
+	pb "jshn232/helloworld"
+
+	"google.golang.org/grpc/reflection"
 )
 
-const recvBufLen = 1024 //recv buffer length
+//const recvBufLen = 1024 //recv buffer length
+const (
+	recvBufLen = 1024
+	port       = ":50051"
+)
+
+// server is used to implement helloworld.GreeterServer.
+type server struct{}
 
 //var gRemoteIP []string        //remote ip list
 var gmapRemoteIP map[string]chan string //map of remoteip
@@ -20,7 +36,7 @@ func main() {
 	service := "localhost:8990"
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)
-	listener, err := net.ListenTCP("tcp", tcpAddr)
+	listener, err := net.ListenTCP("tcp4", tcpAddr)
 	checkError(err)
 
 	go handleGRPC()
@@ -31,10 +47,20 @@ func main() {
 	}
 }
 
-//处理gRPC消息
+//handle gRPC
 func handleGRPC() {
-	var msg string
-	for {
+	//	var msg string
+	lis, err := net.Listen("tcp", port)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	s := grpc.NewServer()
+	pb.RegisterGreeterServer(s, &server{})
+	reflection.Register(s)
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
+	/*	for {
 		for index, ch := range gmapRemoteIP {
 			fmt.Println("index:", index)
 			fmt.Println("ch:", ch)
@@ -42,10 +68,10 @@ func handleGRPC() {
 			ch <- msg
 		}
 		time.Sleep(time.Second * 2)
-	}
+	}*/
 }
 
-//客户端接收
+//remote Accpet
 func handleAccept(listener net.Listener) {
 	for {
 		conn, err := listener.Accept()
@@ -57,11 +83,11 @@ func handleAccept(listener net.Listener) {
 	}
 }
 
-//客户端处理
+//handle client
 func handleClient(conn net.Conn, ch chan string) {
-	conn.SetReadDeadline(time.Now().Add(2 * time.Minute)) // set 2 minutes timeout
-	request := make([]byte, recvBufLen)                   // set maxium request length to 128B to prevent flood attack
-	defer conn.Close()                                    // close connection before exit
+	//	conn.SetReadDeadline(time.Now().Add(2 * time.Minute)) // set 2 minutes timeout
+	request := make([]byte, recvBufLen) // set maxium request length to 128B to prevent flood attack
+	defer conn.Close()                  // close connection before exit
 	strIP := conn.RemoteAddr().String()
 	fmt.Println("Accept new ip&port from :", strIP)
 	appendRemoteIP(strIP, ch)
@@ -91,7 +117,7 @@ func handleClient(conn net.Conn, ch chan string) {
 	}
 }
 
-//从channel获取消息，转发至客户端
+//receive message form channel , send message to client
 func getChannel(conn net.Conn, ch chan string) {
 	for {
 		select {
@@ -136,4 +162,16 @@ func appendRemoteIP(newip string, ch chan string) map[string]chan string {
 func deleteRemoteIP(oldip string) map[string]chan string {
 	delete(gmapRemoteIP, oldip)
 	return gmapRemoteIP
+}
+
+// SayHello implements helloworld.GreeterServer
+func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
+	for ip, ch := range gmapRemoteIP {
+		sStr := strings.SplitN(ip, ":", 2)
+		IP := sStr[0]
+		if IP == in.Ip {
+			ch <- in.Msg
+		}
+	}
+	return &pb.HelloReply{Message: "Hello " + in.Msg}, nil
 }
