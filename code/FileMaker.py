@@ -64,7 +64,7 @@ with open("./%s" %NewFileName,'rb') as f:
 
 print("Factory Info Loading...")
 with open("./%s" %NewFileName,'a') as f:
-	f.write("creaway")                        #creaway
+	f.write("creaway")                        
 
 with open("./%s" %NewFileName,'ab') as f:
 	for i in range(13):
