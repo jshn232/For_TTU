@@ -13,7 +13,6 @@ touch /etc/hosts
 echo "127.0.1.1       localhost.localdomain-001497179af4" > /etc/hosts
 echo "127.0.1.1       localhost.localdomain-001497179af4-001497179af4" >> /etc/hosts
 echo "127.0.1.1       -001497179af4" >> /etc/hosts
-echo "127.0.1.1       creaway-001497179af4" >> /etc/hosts
 
 dockerip=$(getDockerIP msptl)
 if [ $dockerip ]; then
