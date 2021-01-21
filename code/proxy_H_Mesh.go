@@ -1,6 +1,5 @@
 package main
 
-//HY-Mesh 拨号代理工具  20180930 scy
 import (
 	"fmt"
 	"io"
